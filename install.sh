@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-REPO="royalaid/safe-buddy"
+REPO="publu/safe-buddy"
 BRANCH="master"
 URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}/safe_buddy.py"
 BIN_NAME="safe-buddy"

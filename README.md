@@ -21,7 +21,7 @@ Agent skill for [cryptoskills.sh](https://cryptoskills.sh/skill/safe-buddy).
 ## Install
 
 ```bash
-curl -sSf https://raw.githubusercontent.com/royalaid/safe-buddy/master/install.sh | sh
+curl -sSf https://raw.githubusercontent.com/publu/safe-buddy/master/install.sh | sh
 ```
 
 ## Commands
