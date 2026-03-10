@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """safe-buddy — Safe multisig CLI with rich terminal UI. Track transactions, owners, balances."""
 
+import hashlib
 import json
 import sys
 import time
@@ -48,6 +49,62 @@ NETWORKS = {
     "sepolia":   f"{_BASE}/sep",
     "sep":       f"{_BASE}/sep",
 }
+
+# ── Keccak-256 (pure Python, for EIP-55 checksumming) ────────
+def _keccak256(data):
+    """Minimal Keccak-256: enough for EIP-55 address checksumming."""
+    RC = [
+        0x0000000000000001, 0x0000000000008082, 0x800000000000808A, 0x8000000080008000,
+        0x000000000000808B, 0x0000000080000001, 0x8000000080008081, 0x8000000000008009,
+        0x000000000000008A, 0x0000000000000088, 0x0000000080008009, 0x000000008000000A,
+        0x000000008000808B, 0x800000000000008B, 0x8000000000008089, 0x8000000000008003,
+        0x8000000000008002, 0x8000000000000080, 0x000000000000800A, 0x800000008000000A,
+        0x8000000080008081, 0x8000000000008080, 0x0000000080000001, 0x8000000080008008,
+    ]
+    ROT = [
+        [0,36,3,41,18],[1,44,10,45,2],[62,6,43,15,61],[28,55,25,21,56],[27,20,39,8,14]
+    ]
+    M = (1 << 64) - 1
+    rate = 136  # bytes (1088 bits for Keccak-256)
+    # Pad
+    buf = bytearray(data)
+    buf.append(0x01)
+    while len(buf) % rate != rate - 1:
+        buf.append(0)
+    buf.append(0x80)
+    # Absorb + squeeze
+    state = [[0]*5 for _ in range(5)]
+    for blk in range(0, len(buf), rate):
+        for i in range(rate // 8):
+            x, y = i % 5, i // 5
+            state[x][y] ^= int.from_bytes(buf[blk + i*8 : blk + i*8 + 8], 'little')
+        # 24 rounds
+        for rc in RC:
+            C = [state[x][0]^state[x][1]^state[x][2]^state[x][3]^state[x][4] for x in range(5)]
+            D = [C[(x-1)%5] ^ (((C[(x+1)%5]<<1)|(C[(x+1)%5]>>63))&M) for x in range(5)]
+            state = [[(state[x][y]^D[x]) for y in range(5)] for x in range(5)]
+            B = [[0]*5 for _ in range(5)]
+            for x in range(5):
+                for y in range(5):
+                    v = state[x][y]; r = ROT[x][y]
+                    B[y][(2*x+3*y)%5] = ((v << r) | (v >> (64 - r))) & M if r else v
+            state = [[(B[x][y] ^ ((~B[(x+1)%5][y] & M) & B[(x+2)%5][y])) for y in range(5)] for x in range(5)]
+            state[0][0] ^= rc
+    out = b''
+    for y in range(5):
+        for x in range(5):
+            out += state[x][y].to_bytes(8, 'little')
+    return out[:32]
+
+
+def to_checksum_address(addr):
+    """EIP-55 mixed-case checksum encoding."""
+    addr = addr.lower().replace("0x", "")
+    h = _keccak256(addr.encode()).hex()
+    return "0x" + "".join(
+        c.upper() if int(h[i], 16) >= 8 else c
+        for i, c in enumerate(addr)
+    )
 
 # ── ANSI Colors ─────────────────────────────────────────────
 CYAN    = "\033[38;2;0;212;255m"
@@ -267,7 +324,7 @@ def cmd_safe(args):
         print(f"  {dim('Example: safe_buddy.py safe 0xABC...123 --network base')}")
         return
 
-    addr = args[0]
+    addr = to_checksum_address(args[0])
     print_header(f"safe {fmt_addr(addr, short=False)}", network)
 
     safe_data = api(base_url, f"/safes/{addr}/")
@@ -368,7 +425,7 @@ def cmd_txs(args):
         print(f"  {dim('Example: safe_buddy.py txs 0xABC...123 20 --network base')}")
         return
 
-    addr = args[0]
+    addr = to_checksum_address(args[0])
     limit = int(args[1]) if len(args) > 1 else 15
     print_header(f"txs {fmt_addr(addr)}", network)
 
@@ -416,15 +473,17 @@ def cmd_pending(args):
         print(f"  {dim('Example: safe_buddy.py pending 0xABC...123 --network arbitrum')}")
         return
 
-    addr = args[0]
+    addr = to_checksum_address(args[0])
     print_header(f"pending {fmt_addr(addr)}", network)
 
-    # Get safe info for threshold
+    # Get safe info for threshold and current nonce
     safe_data = api(base_url, f"/safes/{addr}/") or {}
     threshold = safe_data.get("threshold", 1)
+    current_nonce = safe_data.get("nonce", 0)
 
     data = api(base_url, f"/safes/{addr}/multisig-transactions/", {
         "executed": "false",
+        "nonce__gte": current_nonce,
         "ordering": "-nonce",
     })
     if not data:
@@ -515,7 +574,7 @@ def cmd_watch(args):
         print(f"  {dim('Example: safe_buddy.py watch 0xABC...123 30 --network base')}")
         return
 
-    addr = args[0]
+    addr = to_checksum_address(args[0])
     print_header(f"watch {fmt_addr(addr)}", network)
     print(f"  {c('◉')} {w('Live watch mode')} — polling every {interval}s")
     print(f"  {dc('Ctrl+C to stop')}")
@@ -578,7 +637,7 @@ def cmd_owners(args):
         print(f"  {y('Usage:')} safe_buddy.py owners <address> [--network <net>]")
         return
 
-    addr = args[0]
+    addr = to_checksum_address(args[0])
     print_header(f"owners {fmt_addr(addr)}", network)
 
     safe_data = api(base_url, f"/safes/{addr}/")
@@ -622,7 +681,7 @@ def cmd_history(args):
         print(f"  {y('Usage:')} safe_buddy.py history <address> [limit] [--network <net>]")
         return
 
-    addr = args[0]
+    addr = to_checksum_address(args[0])
     print_header(f"history {fmt_addr(addr)}", network)
 
     data = api(base_url, f"/safes/{addr}/all-transactions/", {"limit": limit})
