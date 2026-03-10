@@ -1,6 +1,20 @@
-# safe-buddy
+```
+  ███████╗ █████╗ ███████╗███████╗
+  ██╔════╝██╔══██╗██╔════╝██╔════╝
+  ███████╗███████║█████╗  █████╗
+  ╚════██║██╔══██║██╔══╝  ██╔══╝
+  ███████║██║  ██║██║     ███████╗
+  ╚══════╝╚═╝  ╚═╝╚═╝     ╚══════╝
+  ██████╗ ██╗   ██╗██████╗ ██████╗ ██╗   ██╗
+  ██╔══██╗██║   ██║██╔══██╗██╔══██╗╚██╗ ██╔╝
+  ██████╔╝██║   ██║██║  ██║██║  ██║ ╚████╔╝
+  ██╔══██╗██║   ██║██║  ██║██║  ██║  ╚██╔╝
+  ██████╔╝╚██████╔╝██████╔╝██████╔╝   ██║
+  ╚═════╝  ╚═════╝ ╚═════╝ ╚═════╝    ╚═╝
+                        Multisig Transaction Explorer
+```
 
-Track Safe multisig wallets across 20+ chains. View owners, pending signatures, transaction history, and watch for live activity — with a rich terminal UI.
+Track Safe multisig wallets across 20+ chains. Pending signatures, signer status, transaction history, live watch mode — rich terminal UI, zero dependencies.
 
 Agent skill for [cryptoskills.sh](https://cryptoskills.sh/skill/safe-buddy).
 
@@ -46,53 +60,53 @@ python3 /tmp/safe_buddy.py history 0xYourSafe --network optimism
 python3 /tmp/safe_buddy.py networks
 ```
 
-## Screenshot
+## Terminal Output
 
 ```
   ⬡ safe-buddy  |  base
   ✓ Connected to Safe Transaction Service
 
-  ███████╗ █████╗ ███████╗███████╗
-  ██╔════╝██╔══██╗██╔════╝██╔════╝
-  ███████╗███████║█████╗  █████╗
-  ╚════██║██╔══██║██╔══╝  ██╔══╝
-  ███████║██║  ██║██║     ███████╗
-  ╚══════╝╚═╝  ╚═╝╚═╝     ╚══════╝
-
-  ██████╗ ██╗   ██╗██████╗ ██████╗ ██╗   ██╗
-  ██╔══██╗██║   ██║██╔══██╗██╔══██╗╚██╗ ██╔╝
-  ██████╔╝██║   ██║██║  ██║██║  ██║ ╚████╔╝
-  ██╔══██╗██║   ██║██║  ██║██║  ██║  ╚██╔╝
-  ██████╔╝╚██████╔╝██████╔╝██████╔╝   ██║
-  ╚═════╝  ╚═════╝ ╚═════╝ ╚═════╝    ╚═╝
-                   Multisig Transaction Explorer
-
-  safe> pending 0x849D...39d
+  safe> pending 0x849D52316331967b6fF1198e5E32A0eB168D039d
 
   ⚠ 2 pending transaction(s) — threshold: 3
 
-  ┌── Nonce #42 ────────────────────────────────────────────┐
-  │                                                          │
-  │ Type:             ERC20 transfer                         │
-  │ To:               0x1f9e...4a2b                          │
-  │ Value:            0 ETH                                  │
-  │ Submitted:        2h ago                                 │
-  │                                                          │
-  ├──────────────────────────────────────────────────────────┤
-  │                                                          │
-  │ Signatures  ▓▓░░░  2/3                                   │
-  │                                                          │
-  │   ✔ 0xAbC...1234  3m ago                                 │
-  │   ✔ 0xDeF...5678  1h ago                                 │
-  │                                                          │
-  │   Needs 1 more signature                                 │
-  │                                                          │
-  └──────────────────────────────────────────────────────────┘
+  ┌── Nonce #42 ────────────────────────────────────────────────┐
+  │                                                              │
+  │ Type:             ERC20 transfer                             │
+  │ To:               0x1f9e...4a2b                              │
+  │ Value:            0 ETH                                      │
+  │ Submitted:        2h ago                                     │
+  │                                                              │
+  ├──────────────────────────────────────────────────────────────┤
+  │                                                              │
+  │ Signatures  ▓▓░░░  2/3                                       │
+  │                                                              │
+  │   ✔ 0xAbC4...1234  3m ago                                    │
+  │   ✔ 0xDeF7...5678  1h ago                                    │
+  │                                                              │
+  │   Needs 1 more signature                                     │
+  │                                                              │
+  └──────────────────────────────────────────────────────────────┘
+
+  ┌── Nonce #43 ────────────────────────────────────────────────┐
+  │                                                              │
+  │ Type:             Contract call (0xa9059cbb)                 │
+  │ To:               0x833D...9fAa                              │
+  │ Value:            0.5 ETH                                    │
+  │ Submitted:        14m ago                                    │
+  │                                                              │
+  ├──────────────────────────────────────────────────────────────┤
+  │                                                              │
+  │ Signatures  ░░░░░  0/3                                       │
+  │                                                              │
+  │   Needs 3 more signatures                                    │
+  │                                                              │
+  └──────────────────────────────────────────────────────────────┘
 ```
 
 ## Supported Networks
 
-Ethereum, Base, Arbitrum, Optimism, Polygon, Gnosis Chain, Avalanche, BNB Chain, zkSync, Scroll, Linea, Blast, Berachain, Sepolia.
+Ethereum, Base, Arbitrum, Optimism, Polygon, Gnosis Chain, Avalanche, BNB Chain, zkSync, Scroll, Linea, Berachain, Mantle, Celo, Aurora, Polygon zkEVM, Ink, Sonic, Sepolia.
 
 ## Data Sources
 
