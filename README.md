@@ -60,7 +60,7 @@ python3 /tmp/safe_buddy.py history 0xYourSafe --network optimism
 python3 /tmp/safe_buddy.py networks
 ```
 
-## Terminal Output
+## Output
 
 ```
   ⬡ safe-buddy  |  base
