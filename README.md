@@ -21,7 +21,7 @@ Agent skill for [cryptoskills.sh](https://cryptoskills.sh/skill/safe-buddy).
 ## Install
 
 ```bash
-curl -sL https://raw.githubusercontent.com/publu/safe-buddy/master/safe_buddy.py -o /tmp/safe_buddy.py
+curl -sSf https://raw.githubusercontent.com/publu/safe-buddy/master/install.sh | sh
 ```
 
 ## Commands
@@ -42,22 +42,22 @@ All commands accept `--network <name>` or `-n <name>` (default: `mainnet`).
 
 ```bash
 # Safe overview with balances and signers
-python3 /tmp/safe_buddy.py safe 0x849D52316331967b6fF1198e5E32A0eB168D039d --network base
+safe-buddy safe 0x849D52316331967b6fF1198e5E32A0eB168D039d --network base
 
 # See what's waiting to be signed
-python3 /tmp/safe_buddy.py pending 0x849D52316331967b6fF1198e5E32A0eB168D039d --network base
+safe-buddy pending 0x849D52316331967b6fF1198e5E32A0eB168D039d --network base
 
 # Recent 20 transactions on Arbitrum
-python3 /tmp/safe_buddy.py txs 0xYourSafe 20 --network arbitrum
+safe-buddy txs 0xYourSafe 20 --network arbitrum
 
 # Watch live for new transactions (poll every 30s)
-python3 /tmp/safe_buddy.py watch 0xYourSafe 30 --network mainnet
+safe-buddy watch 0xYourSafe 30 --network mainnet
 
 # Full history including ETH transfers + module calls
-python3 /tmp/safe_buddy.py history 0xYourSafe --network optimism
+safe-buddy history 0xYourSafe --network optimism
 
 # List all supported networks
-python3 /tmp/safe_buddy.py networks
+safe-buddy networks
 ```
 
 ## Output
